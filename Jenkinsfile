@@ -1,76 +1,55 @@
 pipeline {
     agent any
-
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('f8a2d8e1-1263-4e2f-9f42-7b9edd7fb0b9')
-        KUBECONFIG_CREDENTIALS = credentials('kubernetes-token')
-        IMAGE_NAME = 'prathi2n/wizdesk'
+        DOCKER_IMAGE = "prathi2n/wizdesk:latest"
+        KUBECONFIG = credentials('kubeconfig-credentials-id')
     }
-
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git credentialsId: 'git-credential-id', url: 'https://github.com/prathi2n/wizdesk'
             }
         }
-
         stage('Build') {
             steps {
-                script {
-                    def mvnHome = tool name: 'M3', type: 'maven'
-                    sh "${mvnHome}/bin/mvn clean package"
-                }
+                sh 'mvn clean package'
             }
         }
-
         stage('Test') {
             steps {
+                sh 'mvn test'
+            }
+        }
+        stage('Docker Build') {
+            steps {
                 script {
-                    def mvnHome = tool name: 'M3', type: 'maven'
-                    sh "${mvnHome}/bin/mvn test"
+                    docker.build(DOCKER_IMAGE)
                 }
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Docker Push') {
             steps {
                 script {
-                    sh 'docker build -t ${IMAGE_NAME} .'
-                }
-            }
-        }
-
-        stage('Publish Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        sh 'docker push ${IMAGE_NAME}'
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials-id') {
+                        docker.image(DOCKER_IMAGE).push()
                     }
                 }
             }
         }
-
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
+                    withKubeConfig([credentialsId: KUBECONFIG]) {
                         sh 'kubectl apply -f k8s/deployment.yaml'
+                        sh 'kubectl apply -f k8s/service.yaml'
                     }
                 }
             }
         }
     }
-
     post {
         always {
             cleanWs()
         }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
     }
 }
-
