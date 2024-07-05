@@ -7,17 +7,17 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',  credentialsId: 'git-credential-id', url: 'https://github.com/prathi2n/wizdesk'
+                git branch: 'main', credentialsId: 'git-credential-id', url: 'https://github.com/prathi2n/wizdesk'
             }
         }
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                sh 'npm install'
             }
         }
         stage('Test') {
             steps {
-                sh 'mvn test'
+                sh 'npm test'
             }
         }
         stage('Docker Build') {
