@@ -3,6 +3,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "prathi2n/wizdesk:latest"
         KUBECONFIG = credentials('kubeconfig-credentials-id')
+	PATH = "/root/.nvm/versions/node/v16.20.2/bin:$PATH"
     }
     stages {
         stage('Checkout') {
