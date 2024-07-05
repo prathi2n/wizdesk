@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = "prathi2n/wizdesk:latest"
-        KUBECONFIG = credentials('kubeconfig-credentials-id')
+        KUBECONFIG = credentials('kubeconfig-credentials-id-2')
     }
     tools {
         nodejs 'NodeJS 16'
