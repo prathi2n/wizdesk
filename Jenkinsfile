@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'git-credential-id', url: 'https://github.com/prathi2n/wizdesk'
+                git branch: 'main',  credentialsId: 'git-credential-id', url: 'https://github.com/prathi2n/wizdesk'
             }
         }
         stage('Build') {
