@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = "prathi2n/wizdesk:latest"
-        KUBECONFIG = credentials('kubeconfig-credentials-id-2')
+        KUBECONFIG = credentials('kubeconfig-credentials-id')
     }
     tools {
         nodejs 'NodeJS 16'
@@ -42,7 +42,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: 'kubeconfig-credentials-id-2']) {
+                    withKubeConfig([credentialsId: 'kubeconfig-credentials-id']) {
                         sh 'kubectl apply -f k8s/deployment.yaml'
                         sh 'kubectl apply -f k8s/service.yaml'
                     }
